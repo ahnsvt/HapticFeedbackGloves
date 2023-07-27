@@ -3,28 +3,18 @@ import pybullet as pb
 from pybullet_utils.bullet_client import BulletClient
 import argparse
 import socket
-
-
+import json
+import select
+import sys
+import time
 from mano_pybullet.hand_body import HandBody
 from mano_pybullet.hand_model import HandModel20
 
 
 
 
-# HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
-# PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
-
-# with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-#     s.bind((HOST, PORT))
-#     s.listen()
-#     conn, addr = s.accept()
-#     with conn:
-#         print(f"Connected by {addr}")
-#         while True:
-#             data = conn.recv(1024)
-#             if not data:
-#                 break
-#             conn.sendall(data)
+HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
+PORT = 65430  # Port to listen on (non-privileged ports are > 1023)
 
 
 def parse_args():
@@ -78,18 +68,56 @@ def main():
 
     client.setRealTimeSimulation(True)
 
-    # print(hand.joint_indices)
-    # print(hand.joint_names)
-    print(hand_model.link_names)
+    position = np.zeros(3)
+    orientation = np.array([ 0.7071068, 0, 0, 0.7071068 ]) 
+    angles = np.zeros(20)   
+    angles[1] = np.deg2rad(90)
+    hand.set_target(position, orientation, angles)
+    
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind((HOST, PORT))
+    s.listen()
+    s.settimeout(600.0)
+    print("Ready")
+
     while client.isConnected():
 
-        position = np.zeros(3)
-        # rotation = np.array([0,0,0,1])
-        rotation = np.array([ 0.7071068, 0, 0, 0.7071068 ])
-        angles = np.zeros(20)
-        angles[0] = np.deg2rad(90)
+        curr_pos, curr_orien, _, curr_angles, _, _ = hand.get_state()
 
-        hand.set_target(position, rotation, angles)
+
+        socket_list = [sys.stdin, s]
+
+        # Get the list sockets which are readable
+        read_sockets, write_sockets, error_sockets = select.select(
+            socket_list, [], [], 0)
+        
+        for sock in read_sockets:
+            print("Incoming msg")
+            #incoming message from remote server
+            if sock is s:
+                conn, add = s.accept()
+                payload = conn.recv(4096)
+                if not payload:
+                    print('\nDisconnected from server')
+                    break
+                else:
+                    payload = payload.decode("utf-8").rstrip("\x00")
+                    payload = json.loads(payload)
+                    print("received from client: {}".format(payload))
+
+                    angles = np.array(payload)
+
+                    # while np.sum(np.abs(curr_vel)) > 4.0:
+                        # hand.set_target(position, orientation, angles)
+                        # curr_pos, curr_orien, _, curr_angles, curr_vel, _ = hand.get_state()
+
+                    data = np.zeros(10)
+                    data = json.dumps(data.tolist(), ensure_ascii=False).encode('utf8')
+                    conn.sendall(data)
+        # # keep current position unless payload received
+        # print(angles)            
+        hand.set_target(position, orientation, angles)
 
 
 
