@@ -17,14 +17,18 @@ import os
 import cv2
 import math
 
+np.set_printoptions(precision=2)
+
 # creates a Tk() object
 master = Tk()
 
 #global variables
 ready = False
 arduino = ""
-angles_raw = [0]*19
-angles = [0]*23
+#angles_raw = [0]*19
+angles_raw = [0]*12
+#angles = [0]*23
+angles = [0]*16
 unity = False
 done = True
 val = 0
@@ -35,17 +39,22 @@ button_web = 0
 # Variables for calibration
 angle_calibration_MCP = [0,45,80]
 angle_calibration_PIP = [0,45,90]
-angle_calibration_wrist = [-45,0,45]
-x_MCP = [[0] * 3 for i1 in range(5)]
-x_PIP = [[0] * 3 for i1 in range(5)]
-z_MCP = [0]*7
-wrist_val = [0] * 3
-coeff_MCP = [[0] * 3 for i1 in range(5)]
-coeff_PIP = [[0] * 3 for i1 in range(5)]
-coeff_wrist = [0] * 3
+#angle_calibration_wrist = [-45,0,45]
+#x_MCP = [[0] * 3 for i1 in range(5)]
+x_MCP = [[0] * 3 for i1 in range(4)]
+#x_PIP = [[0] * 3 for i1 in range(5)] #Includes the thumb DIP in the 0th position of the array
+x_PIP = [[0] * 3 for i1 in range(4)]
+#z_MCP = [0]*7 #Includes the CMCx and y at the last 2 positions of the array
+z_MCP = [0]*4
+#wrist_val = [0] * 3
+#coeff_MCP = [[0] * 3 for i1 in range(5)]
+coeff_MCP = [[0] * 3 for i1 in range(4)]
+#coeff_PIP = [[0] * 3 for i1 in range(5)]
+coeff_PIP = [[0] * 3 for i1 in range(4)]
+#coeff_wrist = [0] * 3
 
 #webcam variables
-color_prox = (255, 255, 0)
+color_prox = (255, 255, 0) 
 color_meta = (0, 255, 0)
 color_hand = (0, 0, 255)
 alpha = 0.4
@@ -58,7 +67,7 @@ cap = 0
 def interface():
     global master
     master.title("H.E.D.A.S (Hand Exoskeleton Data Acquisition System)")
-    master.state('zoomed')
+    master.state('normal')
     master.config(bg = 'medium aquamarine')
 
     ports = serial.tools.list_ports.comports(include_links=False) #looking for the acive ports
@@ -89,6 +98,7 @@ def Calibration(portDevice):
 def calibration():
     global master, val, show_cam,cap,thread1, button_web
     eraseWidget()
+    #print(val)
 
     if val == 0:
         Label(master, text ="Put your hand flat with the thumb as far as possible from the fingers", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack()
@@ -148,38 +158,39 @@ def calibration():
             Label(master, text ="to help you positioning your fingers.", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200+25,y = master.winfo_height()/2+135,anchor = CENTER)
             Label(master, text ="Opening the webcam can take a couple of seconds", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200+25,y = master.winfo_height()/2+175,anchor = CENTER)
    
-    if val == 3:
-        Label(master, text ="Fold your wrist until your hand forms a -45° angle", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack()
-        Label(master, text ="with your arm as in the picture", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack()
-        image1 = Image.open(os.path.join(path + os.sep,"image", "_45_wrist.png"))
-        test1 = ImageTk.PhotoImage(image1)
-        label1 = Label(image=test1, bg = 'medium aquamarine')
-        label1.image = test1
-        label1.place(x=400,y = master.winfo_height()/2,anchor = CENTER)
-        if not show_cam:
-            Button(master, text = "Show the webcam", command = lambda : show(), font=("Abadi MT Condensed Extra Bold", 30), bg = 'snow').place(x=1200,y = master.winfo_height()/2,anchor = CENTER)
-            Label(master, text ="This will return the video of your webcam (if you have a one).", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200,y = master.winfo_height()/2+55,anchor = CENTER)
-            Label(master, text ="The same indicator as in the picture will show on the video", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200,y = master.winfo_height()/2+95,anchor = CENTER)
-            Label(master, text ="to help you positioning your fingers.", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200+25,y = master.winfo_height()/2+135,anchor = CENTER)
-            Label(master, text ="Opening the webcam can take a couple of seconds", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200+25,y = master.winfo_height()/2+175,anchor = CENTER)
+    # if val == 3:
+    #     Label(master, text ="Fold your wrist until your hand forms a -45° angle", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack()
+    #     Label(master, text ="with your arm as in the picture", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack()
+    #     image1 = Image.open(os.path.join(path + os.sep,"image", "_45_wrist.png"))
+    #     test1 = ImageTk.PhotoImage(image1)
+    #     label1 = Label(image=test1, bg = 'medium aquamarine')
+    #     label1.image = test1
+    #     label1.place(x=400,y = master.winfo_height()/2,anchor = CENTER)
+    #     if not show_cam:
+    #         Button(master, text = "Show the webcam", command = lambda : show(), font=("Abadi MT Condensed Extra Bold", 30), bg = 'snow').place(x=1200,y = master.winfo_height()/2,anchor = CENTER)
+    #         Label(master, text ="This will return the video of your webcam (if you have a one).", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200,y = master.winfo_height()/2+55,anchor = CENTER)
+    #         Label(master, text ="The same indicator as in the picture will show on the video", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200,y = master.winfo_height()/2+95,anchor = CENTER)
+    #         Label(master, text ="to help you positioning your fingers.", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200+25,y = master.winfo_height()/2+135,anchor = CENTER)
+    #         Label(master, text ="Opening the webcam can take a couple of seconds", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200+25,y = master.winfo_height()/2+175,anchor = CENTER)
    
-    if val == 4:
-        Label(master, text ="Fold your wrist the other way until your hand", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack()
-        Label(master, text ="forms a 45° angle with your arm as in the picture", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack()
-        image1 = Image.open(os.path.join(path + os.sep,"image", "45_wrist.png"))
-        test1 = ImageTk.PhotoImage(image1)
-        label1 = Label(image=test1, bg = 'medium aquamarine')
-        label1.image = test1
-        label1.place(x=400,y = master.winfo_height()/2,anchor = CENTER)
-        if not show_cam:
-            Button(master, text = "Show the webcam", command = lambda : show(), font=("Abadi MT Condensed Extra Bold", 30), bg = 'snow').place(x=1200,y = master.winfo_height()/2,anchor = CENTER)
-            Label(master, text ="This will return the video of your webcam (if you have a one).", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200,y = master.winfo_height()/2+55,anchor = CENTER)
-            Label(master, text ="The same indicator as in the picture will show on the video", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200,y = master.winfo_height()/2+95,anchor = CENTER)
-            Label(master, text ="to help you positioning your fingers.", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200+25,y = master.winfo_height()/2+135,anchor = CENTER)
-            Label(master, text ="Opening the webcam can take a couple of seconds", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200+25,y = master.winfo_height()/2+175,anchor = CENTER)
+    # if val == 4:
+    #     Label(master, text ="Fold your wrist the other way until your hand", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack()
+    #     Label(master, text ="forms a 45° angle with your arm as in the picture", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack()
+    #     image1 = Image.open(os.path.join(path + os.sep,"image", "45_wrist.png"))
+    #     test1 = ImageTk.PhotoImage(image1)
+    #     label1 = Label(image=test1, bg = 'medium aquamarine')
+    #     label1.image = test1
+    #     label1.place(x=400,y = master.winfo_height()/2,anchor = CENTER)
+    #     if not show_cam:
+    #         Button(master, text = "Show the webcam", command = lambda : show(), font=("Abadi MT Condensed Extra Bold", 30), bg = 'snow').place(x=1200,y = master.winfo_height()/2,anchor = CENTER)
+    #         Label(master, text ="This will return the video of your webcam (if you have a one).", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200,y = master.winfo_height()/2+55,anchor = CENTER)
+    #         Label(master, text ="The same indicator as in the picture will show on the video", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200,y = master.winfo_height()/2+95,anchor = CENTER)
+    #         Label(master, text ="to help you positioning your fingers.", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200+25,y = master.winfo_height()/2+135,anchor = CENTER)
+    #         Label(master, text ="Opening the webcam can take a couple of seconds", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200+25,y = master.winfo_height()/2+175,anchor = CENTER)
    
     # We ask for a name
-    if val == 5:
+    #if val == 5:
+    if val == 3:
         if show_cam:
             cap.release()
             thread1.kill()
@@ -188,34 +199,60 @@ def calibration():
         entry1.place(x= master.winfo_width()/2, y = master.winfo_height()/2,anchor = CENTER)
         Button(master, text = "Submit!", command = lambda : getName(entry1.get()), font=("Abadi MT Condensed Extra Bold", 30), bg = 'snow').place(x= master.winfo_width()/2, y = master.winfo_height()/2+100,anchor = CENTER)
         
-    if val<5:
+    #if val<5:
+    if val<3:
         Button(master, text = "Done!", command = lambda : get_calibration(), font=("Abadi MT Condensed Extra Bold", 30), bg = 'snow').place(x=725, y=700)
 
 # 3.1) Function that collects the data necessary to estimate the angle from the potentiometer values
+# def get_calibration():
+#     global angles_raw, val,coeff_MCP,coeff_PIP,coeff_wrist,wrist_val
+#     eraseWidget()
+#     if val==0:
+#         wrist_val[1] = angles_raw[18]
+#         for i in range(0,7):
+#             z_MCP[i] = angles_raw[i+10]
+#     if val < 3 :
+#         for j in range(0,5):
+#             x_PIP[j][val] = angles_raw[j]
+#             x_MCP[j][val] = angles_raw[j+5]
+    
+#     if val == 3:
+#         wrist_val[0] = angles_raw[18]
+
+#     if val == 4:
+#         wrist_val[2] = angles_raw[18]
+
+#     val = val + 1
+#     if val == 5:
+#         for t in range(0,5):
+#             coeff_MCP[t] = np.polyfit(x_MCP[t],angle_calibration_MCP,2).tolist()
+#             coeff_PIP[t] = np.polyfit(x_PIP[t],angle_calibration_PIP,2).tolist()
+#         coeff_wrist = np.polyfit(wrist_val,angle_calibration_wrist,2).tolist()
+#     calibration() # it always goes back to the calibration function
+
 def get_calibration():
-    global angles_raw, val,coeff_MCP,coeff_PIP,coeff_wrist,wrist_val
+    global angles_raw, val,coeff_MCP,coeff_PIP
     eraseWidget()
     if val==0:
-        wrist_val[1] = angles_raw[18]
-        for i in range(0,7):
-            z_MCP[i] = angles_raw[i+10]
+        for i in range(0,4):
+            z_MCP[i] = angles_raw[i+8]
     if val < 3 :
-        for j in range(0,5):
+        for j in range(0,4):
             x_PIP[j][val] = angles_raw[j]
-            x_MCP[j][val] = angles_raw[j+5]
-    
-    if val == 3:
-        wrist_val[0] = angles_raw[18]
-
-    if val == 4:
-        wrist_val[2] = angles_raw[18]
+            x_MCP[j][val] = angles_raw[j+4]
 
     val = val + 1
-    if val == 5:
-        for t in range(0,5):
+
+    if val == 3:
+        # for k in range(0,4):
+        #     print(x_PIP[k])
+
+        # for l in range(0,4):
+        #     print(x_MCP[k])    
+
+        for t in range(0,4):
             coeff_MCP[t] = np.polyfit(x_MCP[t],angle_calibration_MCP,2).tolist()
             coeff_PIP[t] = np.polyfit(x_PIP[t],angle_calibration_PIP,2).tolist()
-        coeff_wrist = np.polyfit(wrist_val,angle_calibration_wrist,2).tolist()
     calibration() # it always goes back to the calibration function
 
 # shows the webcam if activated
@@ -228,14 +265,15 @@ def show():
     thread1.start()
     calibration()
 
-#3.2) ONce the calibration is finished, the program needs to save the data in a JSON file
+#3.2) Once the calibration is finished, the program needs to save the data in a JSON file
 def getName(name):
     global coeff_MCP, coeff_PIP, z_MCP, coeff_wrist
     if os.path.isfile(os.path.join(path + os.sep, "sample.json")): # it verifies if a file already exists 
         with open(os.path.join(path + os.sep, "sample.json")) as json_open: # if there exists one, it opens it
             data = json.load(json_open)
             
-        data['Usernames'].append({'name': name,'PIP': coeff_PIP,'MPCx': coeff_MCP,'MPCz': z_MCP,'wrist': coeff_wrist})
+        #data['Usernames'].append({'name': name,'PIP': coeff_PIP,'MPCx': coeff_MCP,'MPCz': z_MCP,'wrist': coeff_wrist})
+        data['Usernames'].append({'name': name,'PIP': coeff_PIP,'MPCx': coeff_MCP,'MPCz': z_MCP})
 
         with open(os.path.join(path + os.sep, "sample.json"),"w") as json_write:
             json.dump(data,json_write)
@@ -243,7 +281,8 @@ def getName(name):
     else: # otherwise we create a file in the directory of the program
         data = {}
         data['Usernames'] = []
-        data['Usernames'].append({'name': name,'PIP': coeff_PIP,'MPCx': coeff_MCP,'MPCz': z_MCP,'wrist': coeff_wrist})
+        #data['Usernames'].append({'name': name,'PIP': coeff_PIP,'MPCx': coeff_MCP,'MPCz': z_MCP,'wrist': coeff_wrist})
+        data['Usernames'].append({'name': name,'PIP': coeff_PIP,'MPCx': coeff_MCP,'MPCz': z_MCP})
 
         with open(os.path.join(path + os.sep, "sample.json"), "w") as json_create:
             json.dump(data, json_create)
@@ -257,21 +296,29 @@ def NoCal():
     with open(os.path.join(path + os.sep, "sample.json")) as json_open:
         data = json.load(json_open)
     for user in data['Usernames'] : 
-        Button(master, text = user['name'], command = lambda username = user: get_coeff(username['PIP'],username['MPCx'],username['MPCz'],username['wrist']), font=("Abadi MT Condensed Extra Bold", 30), bg = 'snow').pack(pady = 10)
+        #Button(master, text = user['name'], command = lambda username = user: get_coeff(username['PIP'],username['MPCx'],username['MPCz'],username['wrist']), font=("Abadi MT Condensed Extra Bold", 30), bg = 'snow').pack(pady = 10) 
+        Button(master, text = user['name'], command = lambda username = user: get_coeff(username['PIP'],username['MPCx'],username['MPCz']), font=("Abadi MT Condensed Extra Bold", 30), bg = 'snow').pack(pady = 10)
 
 # Function that replace the coefficient from the JSON
-def get_coeff(PIP, MPCx, MPCz,wrist):
-    global coeff_MCP, coeff_PIP, z_MCP, coeff_wrist
+# def get_coeff(PIP, MPCx, MPCz,wrist):
+#     global coeff_MCP, coeff_PIP, z_MCP, coeff_wrist
+#     coeff_PIP = PIP
+#     coeff_MCP = MPCx
+#     z_MCP = MPCz
+#     coeff_wrist = wrist
+#     final_page()
+
+def get_coeff(PIP, MPCx, MPCz):
+    global coeff_MCP, coeff_PIP, z_MCP
     coeff_PIP = PIP
     coeff_MCP = MPCx
     z_MCP = MPCz
-    coeff_wrist = wrist
     final_page()
 
 # 5) The final page just display a message (and decides if a connection to Unity occurs)
 # A function can be added here with a thread to be used for anything
 def final_page():
-    Unity() #comment this line if you don't want a connection to Unity
+    #Unity() #comment this line if you don't want a connection to Unity
     eraseWidget()
     Label(master, text ="You are ready to use the glove", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack(pady = 150)
     Label(master, text ="The angles are avaibles in the array 'angles'", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack(pady = 10)
@@ -323,37 +370,75 @@ class thread_with_trace(Thread):
     self.killed = True
 
 #---------------function that treats, arranges and send the data----------------#
+# def read_function():
+#     global ready,angles_raw,angles,unity,sock,s
+#     while True:
+#         if ready == True:
+#             data = arduino.readline()[:-2]
+
+#             # if data and len(data) == 19:
+#                 angles_raw = [float(x) for x in data.split()]
+#                 #print('Raw Angles:')
+#                 #print(angles_raw)
+
+                
+#                 for i in range (0,5):
+#                     # Thumb DIP and Index to Pinkie PIPs
+#                     angles[i] = poly_reg(coeff_PIP[i], angles_raw[i])
+#                     # MCPx
+#                     angles[i+5]= poly_reg(coeff_MCP[i], angles_raw[i+5])
+
+                
+#                 for i in range (0,7):
+#                     # MCPz
+#                     angles[i+10] = potToAngle(z_MCP[i]) - potToAngle(angles_raw[i+10])
+                
+#                 #wrist values
+#                 angles[17] = potToAngle(angles_raw[17])-180
+#                 angles[18] = poly_reg(coeff_wrist, angles_raw[18])
+
+#                 for i in range (0,4): 
+#                     # DIP
+#                     angles[i+19] = angles[i+1]*0.88
+                    
+#                 if unity:
+#                     #s.sendall(str(angles[7]).encode('utf-8'))
+#                     for i in range (0,23):
+#                         angles[i] = int(angles[i]*1000)
+#                     sock.sendall(json.dumps(angles).encode())
+
 def read_function():
     global ready,angles_raw,angles,unity,sock,s
     while True:
         if ready == True:
             data = arduino.readline()[:-2]
-            if data and len(data)==19:
-                angles_raw = [float(x) for x in data.split()] 
+
+            if data and len(data) == 83:
+                angles_raw = [float(x) for x in data.split()]
                 
-                for i in range (0,5):
-                    # PIP
+                for i in range (0,4):
+                    # Index to Pinkie PIPs
                     angles[i] = poly_reg(coeff_PIP[i], angles_raw[i])
                     # MCPx
-                    angles[i+5]= poly_reg(coeff_MCP[i], angles_raw[i+5])
+                    angles[i+4]= poly_reg(coeff_MCP[i], angles_raw[i+4])
+
                 
-                for i in range (0,7):
+                for i in range (0,4):
                     # MCPz
-                    angles[i+10] = potToAngle(z_MCP[i])-potToAngle(angles_raw[i+10])
-                
-                #wirst values
-                angles[17] = potToAngle(angles_raw[17])-180
-                angles[18] = poly_reg(coeff_wrist, angles_raw[18])
+                    angles[i+8] = potToAngle(z_MCP[i]) - potToAngle(angles_raw[i+8])
 
                 for i in range (0,4): 
                     # DIP
-                    angles[i+19] = angles[i+1]*0.88
-                    
-                if unity:
-                    #s.sendall(str(angles[7]).encode('utf-8'))
-                    for i in range (0,23):
-                        angles[i] = int(angles[i]*1000)
-                    sock.sendall(json.dumps(angles).encode())
+                    angles[i+12] = angles[i]*0.88 #Might need to change this eqn based on which DIP-PIP relationship I go with
+                
+                # for i in range (0,16):
+                print(np.array(angles))
+
+                # if unity:
+                #     #s.sendall(str(angles[7]).encode('utf-8'))
+                #     for i in range (0,23):
+                #         angles[i] = int(angles[i]*1000)
+                #     sock.sendall(json.dumps(angles).encode())
                 
 def show_image():
     global show_cam,val,cap
@@ -387,15 +472,15 @@ def show_image():
                 cv2.line(overlay, (400,400), (400,300), color_hand, thickness)
                 cv2.line(overlay, (400,300), (int(400+50*math.cos(angles1)),int(300-50*math.sin(angles1))), color_meta, thickness)
                 cv2.line(overlay, (int(400+50*math.cos(angles1)),int(300-50*math.sin(angles1))), (int(400+50*math.cos(angles1)+50*math.cos(angles2+angles1)),int(300-50*math.sin(angles1)-50*math.sin(angles2+angles1))), color_prox, thickness)
-            if val == 3:
-                angles1 = math.radians(45)
-                cv2.line(overlay, (400,450), (400,300), color_hand, 30)
-                cv2.line(overlay, (400,300), (int(400+100*math.cos(angles1)),int(300-100*math.sin(angles1))), color_meta, 30)
-            if val == 4:
-                angles1 = math.radians(135)
-                cv2.line(overlay, (400,450), (400,300), color_hand, 30)
-                cv2.line(overlay, (400,300), (int(400+100*math.cos(angles1)),int(300-100*math.sin(angles1))), color_meta, 30)
-            cv2.addWeighted(overlay, alpha, cv2image, 1 - alpha,0, cv2image)
+            # if val == 3:
+            #     angles1 = math.radians(45)
+            #     cv2.line(overlay, (400,450), (400,300), color_hand, 30)
+            #     cv2.line(overlay, (400,300), (int(400+100*math.cos(angles1)),int(300-100*math.sin(angles1))), color_meta, 30)
+            # if val == 4:
+            #     angles1 = math.radians(135)
+            #     cv2.line(overlay, (400,450), (400,300), color_hand, 30)
+            #     cv2.line(overlay, (400,300), (int(400+100*math.cos(angles1)),int(300-100*math.sin(angles1))), color_meta, 30)
+            # cv2.addWeighted(overlay, alpha, cv2image, 1 - alpha,0, cv2image)
 
             img = PIL.Image.fromarray(cv2image)
             imgtk = ImageTk.PhotoImage(image=img)
