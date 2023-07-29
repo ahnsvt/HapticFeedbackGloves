@@ -29,7 +29,7 @@ arduino = ""
 angles_raw = [0]*12
 #angles = [0]*23
 angles = [0]*16
-unity = False
+unity = True
 done = True
 val = 0
 sock = 0
@@ -325,13 +325,13 @@ def final_page():
     Label(master, text ="Or try in UNITY", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack()
 
 # If called, it connects to the socket of Unity
-def Unity():
-    global unity,sock,s
-    #Unity connection
-    unity = True 
-    host, port = "127.0.0.1", 25001# IP adress (should be same as client) and port number
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((host, port))
+# def Unity():
+#     global unity,sock,s
+#     #Unity connection
+#     unity = True 
+#     host, port = "127.0.0.1", 65430# IP adress (should be same as client) and port number
+#     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#     sock.connect((host, port))
     # test part
     '''HOST,PORT = '192.168.43.49',65436  
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -432,13 +432,30 @@ def read_function():
                     angles[i+12] = angles[i]*0.88 #Might need to change this eqn based on which DIP-PIP relationship I go with
                 
                 # for i in range (0,16):
-                print(np.array(angles))
+                angles = np.array(angles)
+                angles_sock = np.zeros(20)
+                angles_sock[:16] = np.deg2rad(angles)
+                print(angles_sock)
 
-                # if unity:
-                #     #s.sendall(str(angles[7]).encode('utf-8'))
-                #     for i in range (0,23):
-                #         angles[i] = int(angles[i]*1000)
-                #     sock.sendall(json.dumps(angles).encode())
+                if unity:
+                    HOST = "127.0.0.1"  # The server's hostname or IP address
+                    PORT = 65430  # The port used by the server
+                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                        s.connect((HOST, PORT))
+                        position = np.array([0,0,0.1])
+                        orientation = np.array([ 0.7071068, 0, 0, 0.7071068 ])
+                        data = dict()
+                        data["angles"] = angles_sock.tolist()
+                        data["position"] = position.tolist()
+                        data["orientation"] = orientation.tolist()
+                        data = json.dumps(data, ensure_ascii=False).encode('utf8')
+                        #s.sendall(str(angles[7]).encode('utf-8'))
+                        # for i in range (0,23):
+                        #     angles[i] = int(angles[i]*1000)
+                        s.sendall(data)
+                        payload = s.recv(4096)
+                        payload = payload.decode("utf-8").rstrip("\x00")
+                        print("Received {} from server".format(payload))
                 
 def show_image():
     global show_cam,val,cap

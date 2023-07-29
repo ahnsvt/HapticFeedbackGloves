@@ -7,11 +7,11 @@ PORT = 65430  # The port used by the server
 
 tic = time.time()
 angles = np.zeros(20)
-angles[0] = np.deg2rad(90)
-while time.time() - tic < 30.:
+angles[2] = np.deg2rad(90)
+while time.time() - tic < 1.:
     if (time.time() - tic) % 0.5 == 0:
 
-        position = np.array([0,0,0.1])
+        position = np.array([0,0,0.35])
         orientation = np.array([ 0.7071068, 0, 0, 0.7071068 ])
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((HOST, PORT))
@@ -24,4 +24,4 @@ while time.time() - tic < 30.:
             s.sendall(data)
             payload = s.recv(4096)
             payload = payload.decode("utf-8").rstrip("\x00")
-            print("Received {} from realsense server".format(payload))
+            print("Received {} from server".format(payload))
