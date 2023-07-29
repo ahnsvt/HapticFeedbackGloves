@@ -9,7 +9,9 @@ import sys
 import time
 from mano_pybullet.hand_body import HandBody
 from mano_pybullet.hand_model import HandModel20
-
+from mano_pybullet.envs.objects import YCBObject
+import os
+import pybullet_data
 
 
 
@@ -65,15 +67,25 @@ def main():
         HandBody.FLAG_USE_SELF_COLLISION * True])
 
     hand = HandBody(client, hand_model, flags=flags)
+    urdfRootPath = pybullet_data.getDataPath()
+
+
+    client.loadURDF(os.path.join(urdfRootPath, "table/table.urdf"), basePosition=[0.5, 0, -0.65], useFixedBase=1)
+
 
     client.setRealTimeSimulation(True)
 
     position = np.zeros(3)
+    position[-1] = 0.35
     orientation = np.array([ 0.7071068, 0, 0, 0.7071068 ]) 
     angles = np.zeros(20)   
-    angles[1] = np.deg2rad(90)
-    hand.set_target(position, orientation, angles)
-    
+    hand.reset(position, orientation, angles)
+
+    obj = YCBObject("036_wood_block")
+    obj.load()
+    client.resetBasePositionAndOrientation(obj.body_id, [0,0,0.01], [0.707, 0, 0, 0.707])
+    # client.loadURDF(os.path.join(urdfRootPath, "plane.urdf"), basePosition=[0., 0, 0.01], baseOrientation=[ 0, 0, 1, 0 ], useFixedBase=1, globalScaling=0.1)
+
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind((HOST, PORT))
@@ -106,13 +118,15 @@ def main():
                     payload = json.loads(payload)
                     print("received from client: {}".format(payload))
 
-                    angles = np.array(payload)
+                    angles = np.array(payload["angles"])
+                    position = np.array(payload["position"])
+                    orientation = np.array(payload["orientation"])
 
-                    # while np.sum(np.abs(curr_vel)) > 4.0:
-                        # hand.set_target(position, orientation, angles)
-                        # curr_pos, curr_orien, _, curr_angles, curr_vel, _ = hand.get_state()
-
-                    data = np.zeros(10)
+                    # get collision data
+                    data = np.zeros(21)
+                    pts = client.getContactPoints(hand.body_id)
+                    for pt in pts:
+                        data[pt[3]] = 1
                     data = json.dumps(data.tolist(), ensure_ascii=False).encode('utf8')
                     conn.sendall(data)
         # # keep current position unless payload received
