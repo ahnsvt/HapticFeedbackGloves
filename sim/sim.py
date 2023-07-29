@@ -67,24 +67,33 @@ def main():
         HandBody.FLAG_USE_SELF_COLLISION * True])
 
     hand = HandBody(client, hand_model, flags=flags)
-    urdfRootPath = pybullet_data.getDataPath()
-
-
-    client.loadURDF(os.path.join(urdfRootPath, "table/table.urdf"), basePosition=[0.5, 0, -0.65], useFixedBase=1)
-
-
-    client.setRealTimeSimulation(True)
-
     position = np.zeros(3)
     position[-1] = 0.35
     orientation = np.array([ 0.7071068, 0, 0, 0.7071068 ]) 
     angles = np.zeros(20)   
+
+
     hand.reset(position, orientation, angles)
 
+    urdfRootPath = pybullet_data.getDataPath()
+
+    client.loadURDF(os.path.join(urdfRootPath, "table/table.urdf"), basePosition=[0.5, 0, -0.75], useFixedBase=1)
+    client.loadURDF(os.path.join(urdfRootPath, "table/table.urdf"), basePosition=[0.5, 0, -0.75], useFixedBase=1)
     obj = YCBObject("036_wood_block")
-    obj.load()
-    client.resetBasePositionAndOrientation(obj.body_id, [0,0,0.01], [0.707, 0, 0, 0.707])
+    obj.load(position=[0.5,-0.2,0.01])
+    # client.resetBasePositionAndOrientation(obj1.body_id, [0.5,-0.1,0.01], [0.707, 0, 0, 0.707])
+
+    obj = YCBObject("006_mustard_bottle")
+    obj.load(position=[[0.25,0,0.01]])
+    # client.resetBasePositionAndOrientation(obj2.body_id, [0.5,0,0.01], [0.707, 0, 0, 0.707])
+
+    obj = YCBObject("025_mug")
+    obj.load(position=[0,0,0.01])
+    # client.resetBasePositionAndOrientation(obj3.body_id, [0,0,0.01], [0.707, 0, 0, 0.707])
     # client.loadURDF(os.path.join(urdfRootPath, "plane.urdf"), basePosition=[0., 0, 0.01], baseOrientation=[ 0, 0, 1, 0 ], useFixedBase=1, globalScaling=0.1)
+
+    obj = YCBObject("024_bowl")
+    obj.load(position=[0.1,0.2,0.01])
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -92,6 +101,8 @@ def main():
     s.listen()
     s.settimeout(600.0)
     print("Ready")
+
+    client.setRealTimeSimulation(True)
 
     while client.isConnected():
 

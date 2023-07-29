@@ -8,10 +8,10 @@ class Object(object):
         self.body_id = None
         self.loaded = False
 
-    def load(self):
+    def load(self, position=None):
         if self.loaded:
             return self.body_id
-        self.body_id = self._load()
+        self.body_id = self._load(position)
         self.loaded = True
         return self.body_id
 
@@ -44,7 +44,7 @@ class YCBObject(Object):
                                                'textured_simple_vhacd.obj')
         self.scale = scale
 
-    def _load(self):
+    def _load(self, position):
         collision_id = p.createCollisionShape(p.GEOM_MESH,
                                               fileName=self.collision_filename,
                                               meshScale=self.scale)
@@ -54,7 +54,7 @@ class YCBObject(Object):
 
         body_id = p.createMultiBody(baseCollisionShapeIndex=collision_id,
                                     baseVisualShapeIndex=visual_id,
-                                    basePosition=[0.2, 0.2, 0.1],
+                                    basePosition=position,
                                     baseMass=0.1)
         return body_id
 
