@@ -77,10 +77,9 @@ def main():
 
     urdfRootPath = pybullet_data.getDataPath()
 
-    client.loadURDF(os.path.join(urdfRootPath, "table/table.urdf"), basePosition=[0.5, 0, -0.75], useFixedBase=1)
-    client.loadURDF(os.path.join(urdfRootPath, "table/table.urdf"), basePosition=[0.5, 0, -0.75], useFixedBase=1)
+    client.loadURDF(os.path.join(urdfRootPath, "table/table.urdf"), basePosition=[0.5, 0, -0.65], useFixedBase=1)
     obj = YCBObject("036_wood_block")
-    obj.load(position=[0.5,-0.2,0.01])
+    obj.load(position=[0.,0.,0.01])
     # client.resetBasePositionAndOrientation(obj1.body_id, [0.5,-0.1,0.01], [0.707, 0, 0, 0.707])
 
     obj = YCBObject("006_mustard_bottle")
