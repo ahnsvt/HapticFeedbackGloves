@@ -25,10 +25,9 @@ master = Tk()
 #global variables
 ready = False
 arduino = ""
-#angles_raw = [0]*19
 angles_raw = [0]*12
-#angles = [0]*23
 angles = [0]*16
+mano_angles = [0]*16
 unity = True
 done = True
 val = 0
@@ -39,19 +38,11 @@ button_web = 0
 # Variables for calibration
 angle_calibration_MCP = [0,45,80]
 angle_calibration_PIP = [0,45,90]
-#angle_calibration_wrist = [-45,0,45]
-#x_MCP = [[0] * 3 for i1 in range(5)]
 x_MCP = [[0] * 3 for i1 in range(4)]
-#x_PIP = [[0] * 3 for i1 in range(5)] #Includes the thumb DIP in the 0th position of the array
 x_PIP = [[0] * 3 for i1 in range(4)]
-#z_MCP = [0]*7 #Includes the CMCx and y at the last 2 positions of the array
 z_MCP = [0]*4
-#wrist_val = [0] * 3
-#coeff_MCP = [[0] * 3 for i1 in range(5)]
 coeff_MCP = [[0] * 3 for i1 in range(4)]
-#coeff_PIP = [[0] * 3 for i1 in range(5)]
 coeff_PIP = [[0] * 3 for i1 in range(4)]
-#coeff_wrist = [0] * 3
 
 #webcam variables
 color_prox = (255, 255, 0) 
@@ -158,38 +149,6 @@ def calibration():
             Label(master, text ="to help you positioning your fingers.", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200+25,y = master.winfo_height()/2+135,anchor = CENTER)
             Label(master, text ="Opening the webcam can take a couple of seconds", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200+25,y = master.winfo_height()/2+175,anchor = CENTER)
    
-    # if val == 3:
-    #     Label(master, text ="Fold your wrist until your hand forms a -45° angle", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack()
-    #     Label(master, text ="with your arm as in the picture", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack()
-    #     image1 = Image.open(os.path.join(path + os.sep,"image", "_45_wrist.png"))
-    #     test1 = ImageTk.PhotoImage(image1)
-    #     label1 = Label(image=test1, bg = 'medium aquamarine')
-    #     label1.image = test1
-    #     label1.place(x=400,y = master.winfo_height()/2,anchor = CENTER)
-    #     if not show_cam:
-    #         Button(master, text = "Show the webcam", command = lambda : show(), font=("Abadi MT Condensed Extra Bold", 30), bg = 'snow').place(x=1200,y = master.winfo_height()/2,anchor = CENTER)
-    #         Label(master, text ="This will return the video of your webcam (if you have a one).", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200,y = master.winfo_height()/2+55,anchor = CENTER)
-    #         Label(master, text ="The same indicator as in the picture will show on the video", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200,y = master.winfo_height()/2+95,anchor = CENTER)
-    #         Label(master, text ="to help you positioning your fingers.", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200+25,y = master.winfo_height()/2+135,anchor = CENTER)
-    #         Label(master, text ="Opening the webcam can take a couple of seconds", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200+25,y = master.winfo_height()/2+175,anchor = CENTER)
-   
-    # if val == 4:
-    #     Label(master, text ="Fold your wrist the other way until your hand", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack()
-    #     Label(master, text ="forms a 45° angle with your arm as in the picture", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack()
-    #     image1 = Image.open(os.path.join(path + os.sep,"image", "45_wrist.png"))
-    #     test1 = ImageTk.PhotoImage(image1)
-    #     label1 = Label(image=test1, bg = 'medium aquamarine')
-    #     label1.image = test1
-    #     label1.place(x=400,y = master.winfo_height()/2,anchor = CENTER)
-    #     if not show_cam:
-    #         Button(master, text = "Show the webcam", command = lambda : show(), font=("Abadi MT Condensed Extra Bold", 30), bg = 'snow').place(x=1200,y = master.winfo_height()/2,anchor = CENTER)
-    #         Label(master, text ="This will return the video of your webcam (if you have a one).", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200,y = master.winfo_height()/2+55,anchor = CENTER)
-    #         Label(master, text ="The same indicator as in the picture will show on the video", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200,y = master.winfo_height()/2+95,anchor = CENTER)
-    #         Label(master, text ="to help you positioning your fingers.", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200+25,y = master.winfo_height()/2+135,anchor = CENTER)
-    #         Label(master, text ="Opening the webcam can take a couple of seconds", font=("Abadi MT Condensed Extra Bold", 15), bg = 'medium aquamarine').place(x=1200+25,y = master.winfo_height()/2+175,anchor = CENTER)
-   
-    # We ask for a name
-    #if val == 5:
     if val == 3:
         if show_cam:
             cap.release()
@@ -199,37 +158,10 @@ def calibration():
         entry1.place(x= master.winfo_width()/2, y = master.winfo_height()/2,anchor = CENTER)
         Button(master, text = "Submit!", command = lambda : getName(entry1.get()), font=("Abadi MT Condensed Extra Bold", 30), bg = 'snow').place(x= master.winfo_width()/2, y = master.winfo_height()/2+100,anchor = CENTER)
         
-    #if val<5:
     if val<3:
         Button(master, text = "Done!", command = lambda : get_calibration(), font=("Abadi MT Condensed Extra Bold", 30), bg = 'snow').place(x=725, y=700)
 
 # 3.1) Function that collects the data necessary to estimate the angle from the potentiometer values
-# def get_calibration():
-#     global angles_raw, val,coeff_MCP,coeff_PIP,coeff_wrist,wrist_val
-#     eraseWidget()
-#     if val==0:
-#         wrist_val[1] = angles_raw[18]
-#         for i in range(0,7):
-#             z_MCP[i] = angles_raw[i+10]
-#     if val < 3 :
-#         for j in range(0,5):
-#             x_PIP[j][val] = angles_raw[j]
-#             x_MCP[j][val] = angles_raw[j+5]
-    
-#     if val == 3:
-#         wrist_val[0] = angles_raw[18]
-
-#     if val == 4:
-#         wrist_val[2] = angles_raw[18]
-
-#     val = val + 1
-#     if val == 5:
-#         for t in range(0,5):
-#             coeff_MCP[t] = np.polyfit(x_MCP[t],angle_calibration_MCP,2).tolist()
-#             coeff_PIP[t] = np.polyfit(x_PIP[t],angle_calibration_PIP,2).tolist()
-#         coeff_wrist = np.polyfit(wrist_val,angle_calibration_wrist,2).tolist()
-#     calibration() # it always goes back to the calibration function
-
 def get_calibration():
     global angles_raw, val,coeff_MCP,coeff_PIP
     eraseWidget()
@@ -272,7 +204,6 @@ def getName(name):
         with open(os.path.join(path + os.sep, "sample.json")) as json_open: # if there exists one, it opens it
             data = json.load(json_open)
             
-        #data['Usernames'].append({'name': name,'PIP': coeff_PIP,'MPCx': coeff_MCP,'MPCz': z_MCP,'wrist': coeff_wrist})
         data['Usernames'].append({'name': name,'PIP': coeff_PIP,'MPCx': coeff_MCP,'MPCz': z_MCP})
 
         with open(os.path.join(path + os.sep, "sample.json"),"w") as json_write:
@@ -281,7 +212,6 @@ def getName(name):
     else: # otherwise we create a file in the directory of the program
         data = {}
         data['Usernames'] = []
-        #data['Usernames'].append({'name': name,'PIP': coeff_PIP,'MPCx': coeff_MCP,'MPCz': z_MCP,'wrist': coeff_wrist})
         data['Usernames'].append({'name': name,'PIP': coeff_PIP,'MPCx': coeff_MCP,'MPCz': z_MCP})
 
         with open(os.path.join(path + os.sep, "sample.json"), "w") as json_create:
@@ -296,17 +226,9 @@ def NoCal():
     with open(os.path.join(path + os.sep, "sample.json")) as json_open:
         data = json.load(json_open)
     for user in data['Usernames'] : 
-        #Button(master, text = user['name'], command = lambda username = user: get_coeff(username['PIP'],username['MPCx'],username['MPCz'],username['wrist']), font=("Abadi MT Condensed Extra Bold", 30), bg = 'snow').pack(pady = 10) 
         Button(master, text = user['name'], command = lambda username = user: get_coeff(username['PIP'],username['MPCx'],username['MPCz']), font=("Abadi MT Condensed Extra Bold", 30), bg = 'snow').pack(pady = 10)
 
 # Function that replace the coefficient from the JSON
-# def get_coeff(PIP, MPCx, MPCz,wrist):
-#     global coeff_MCP, coeff_PIP, z_MCP, coeff_wrist
-#     coeff_PIP = PIP
-#     coeff_MCP = MPCx
-#     z_MCP = MPCz
-#     coeff_wrist = wrist
-#     final_page()
 
 def get_coeff(PIP, MPCx, MPCz):
     global coeff_MCP, coeff_PIP, z_MCP
@@ -323,20 +245,6 @@ def final_page():
     Label(master, text ="You are ready to use the glove", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack(pady = 150)
     Label(master, text ="The angles are avaibles in the array 'angles'", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack(pady = 10)
     Label(master, text ="Or try in UNITY", font=("Abadi MT Condensed Extra Bold", 30), bg = 'medium aquamarine').pack()
-
-# If called, it connects to the socket of Unity
-# def Unity():
-#     global unity,sock,s
-#     #Unity connection
-#     unity = True 
-#     host, port = "127.0.0.1", 65430# IP adress (should be same as client) and port number
-#     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#     sock.connect((host, port))
-    # test part
-    '''HOST,PORT = '192.168.43.49',65436  
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((HOST, PORT))
-    '''
 
 #----A class that allows a function/thread to be closed if it's an infinity loop---#
 class thread_with_trace(Thread):
@@ -370,43 +278,6 @@ class thread_with_trace(Thread):
     self.killed = True
 
 #---------------function that treats, arranges and send the data----------------#
-# def read_function():
-#     global ready,angles_raw,angles,unity,sock,s
-#     while True:
-#         if ready == True:
-#             data = arduino.readline()[:-2]
-
-#             # if data and len(data) == 19:
-#                 angles_raw = [float(x) for x in data.split()]
-#                 #print('Raw Angles:')
-#                 #print(angles_raw)
-
-                
-#                 for i in range (0,5):
-#                     # Thumb DIP and Index to Pinkie PIPs
-#                     angles[i] = poly_reg(coeff_PIP[i], angles_raw[i])
-#                     # MCPx
-#                     angles[i+5]= poly_reg(coeff_MCP[i], angles_raw[i+5])
-
-                
-#                 for i in range (0,7):
-#                     # MCPz
-#                     angles[i+10] = potToAngle(z_MCP[i]) - potToAngle(angles_raw[i+10])
-                
-#                 #wrist values
-#                 angles[17] = potToAngle(angles_raw[17])-180
-#                 angles[18] = poly_reg(coeff_wrist, angles_raw[18])
-
-#                 for i in range (0,4): 
-#                     # DIP
-#                     angles[i+19] = angles[i+1]*0.88
-                    
-#                 if unity:
-#                     #s.sendall(str(angles[7]).encode('utf-8'))
-#                     for i in range (0,23):
-#                         angles[i] = int(angles[i]*1000)
-#                     sock.sendall(json.dumps(angles).encode())
-
 def read_function():
     global ready,angles_raw,angles,unity,sock,s
     while True:
@@ -415,7 +286,8 @@ def read_function():
 
             if data and len(data) == 83:
                 angles_raw = [float(x) for x in data.split()]
-                
+                print("----")
+                print("Angles Raw: {}".format(angles_raw))
                 for i in range (0,4):
                     # Index to Pinkie PIPs
                     angles[i] = poly_reg(coeff_PIP[i], angles_raw[i])
@@ -430,12 +302,38 @@ def read_function():
                 for i in range (0,4): 
                     # DIP
                     angles[i+12] = angles[i]*0.88 #Might need to change this eqn based on which DIP-PIP relationship I go with
-                
+                mano_angles = np.zeros(16)
+                for i in range (0,4):
+                    for j in range (0,4):
+                        if i < 2:
+                            if j == 0:
+                                mano_angles[4*i + j + 2] = angles[4*j + i] 
+                            elif j == 2:
+                                mano_angles[4*i + j - 2] = angles[4*j + i]
+                            else:
+                                mano_angles[4*i + j] = angles[4*j + i]
+
+                        elif i == 2:
+                            if j == 0:
+                                mano_angles[4*i + j + 2] = angles[4*j + i + 1]
+                            elif j == 2:
+                                mano_angles[4*i + j - 2] = angles[4*j + i + 1]
+                            else:
+                                mano_angles[4*i + j] = angles[4*j + i + 1]
+
+                        elif i == 3:
+                            if j == 0:
+                                mano_angles[4*i + j + 2] = angles[4*j + i - 1]
+                            elif j == 2:
+                                mano_angles[4*i + j - 2] = angles[4*j + i - 1]
+                            else:
+                                mano_angles[4*i + j] = angles[4*j + i - 1]
+
                 # for i in range (0,16):
-                angles = np.array(angles)
-                angles_sock = np.zeros(20)
-                angles_sock[:16] = np.deg2rad(angles)
-                print(angles_sock)
+                mano_angles = np.array(mano_angles)
+                mano_angles_sock = np.zeros(20)
+                mano_angles_sock[:16] = np.deg2rad(mano_angles)
+                print("Angles: {}".format(mano_angles_sock))
 
                 if unity:
                     HOST = "127.0.0.1"  # The server's hostname or IP address
@@ -445,7 +343,7 @@ def read_function():
                         position = np.array([0,0,0.1])
                         orientation = np.array([ 0.7071068, 0, 0, 0.7071068 ])
                         data = dict()
-                        data["angles"] = angles_sock.tolist()
+                        data["angles"] = mano_angles_sock.tolist()
                         data["position"] = position.tolist()
                         data["orientation"] = orientation.tolist()
                         data = json.dumps(data, ensure_ascii=False).encode('utf8')
@@ -454,9 +352,38 @@ def read_function():
                         #     angles[i] = int(angles[i]*1000)
                         s.sendall(data)
                         payload = s.recv(4096)
-                        contact_info = payload.decode("utf-8").rstrip("\x00")
-                        print("Received contact info {} from server".format(contact_info))
-                        arduino.write(contact_info )
+                        contact_info = json.loads(payload.decode("utf-8").rstrip("\x00"))
+
+                        # Pybullet will return an array of 21 bits indicating collision (1) or no collision (0) of each link. 
+                        # The indexing of the array and the corresponding links are as follows, where 1 = Proximal, 2 = Intermediate, 3 = Distal phalanges:
+
+                        # 0 = palm
+                        # 1 = index1 y
+                        # 2 = index1 x
+                        # 3 = index2
+                        # 4 = index3
+                        # 5 = middle1 y
+                        # 6 = middle1 x
+                        # 7 = middle2
+                        # 8 = middle3
+                        # 9 = pinky1 y
+                        # 10 = pinky1 x
+                        # 11 = pinky2
+                        # 12 = pinky3
+                        # 13 = ring1 y
+                        # 14 = ring1 x
+                        # 15 = ring2
+                        # 16 = ring3
+                        # 17 = thumb1 y
+                        # 18 = thumb1 z
+                        # 19 = thumb2
+                        # 20 = thumb3
+
+                        # unwanted = [0,1,4,5,8,9,12,13,16,17,18,19,20] # Unwanted contact list indices
+                        wanted = [2,3,6,7,10,11,14,15]
+                        contact_info_truncated = [int(contact_info[idx]) for idx in wanted]
+                        print("Contact info: {}".format(contact_info_truncated))
+                        arduino.write(contact_info_truncated)
                 
 def show_image():
     global show_cam,val,cap
@@ -490,15 +417,6 @@ def show_image():
                 cv2.line(overlay, (400,400), (400,300), color_hand, thickness)
                 cv2.line(overlay, (400,300), (int(400+50*math.cos(angles1)),int(300-50*math.sin(angles1))), color_meta, thickness)
                 cv2.line(overlay, (int(400+50*math.cos(angles1)),int(300-50*math.sin(angles1))), (int(400+50*math.cos(angles1)+50*math.cos(angles2+angles1)),int(300-50*math.sin(angles1)-50*math.sin(angles2+angles1))), color_prox, thickness)
-            # if val == 3:
-            #     angles1 = math.radians(45)
-            #     cv2.line(overlay, (400,450), (400,300), color_hand, 30)
-            #     cv2.line(overlay, (400,300), (int(400+100*math.cos(angles1)),int(300-100*math.sin(angles1))), color_meta, 30)
-            # if val == 4:
-            #     angles1 = math.radians(135)
-            #     cv2.line(overlay, (400,450), (400,300), color_hand, 30)
-            #     cv2.line(overlay, (400,300), (int(400+100*math.cos(angles1)),int(300-100*math.sin(angles1))), color_meta, 30)
-            # cv2.addWeighted(overlay, alpha, cv2image, 1 - alpha,0, cv2image)
 
             img = PIL.Image.fromarray(cv2image)
             imgtk = ImageTk.PhotoImage(image=img)

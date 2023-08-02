@@ -1,3 +1,18 @@
+#include <Servo.h>
+
+Servo servos[8]; // create servo object array to control 8 servos
+/*
+Servo indexing is as follows:
+0 = Index_Intermediate; 
+1 = Index_Proximal;
+2 = Middle_Intermediate;
+3 = Middle_Proximal;
+4 = Ring_Intermediate;
+5 = Ring_Proximal;
+6 = Pinkie_Intermediate;
+7 = Pinkie_Proximal;
+*/
+
 //Mux variables
 int s0 = 4;
 int s1 = 5;
@@ -6,7 +21,27 @@ int s3 = 7;
 int SIG_pin = A3;
 
 const int sizeAngle = 12;
-int angles[sizeAngle];
+const int sizeCollisionArray = 8; // Receive the truncated contact array from the HEDAS python script via serial
+bool newData = false;
+/*
+The indexing for the truncated contact array is as following, where 1 = Proximal, 2 = Intermediate, 3 = Distal phalanges:
+
+0 = index1 x
+1 = index2
+2 = middle1 x
+3 = middle2
+4 = pinky1 x
+5 = pinky2
+6 = ring1 x
+7 = ring2
+*/
+
+float angles[sizeAngle];
+int collision[sizeCollisionArray];
+
+//Servo positions to engage/disengage pawls
+int disengage = 90;
+int engage = 180;
 
 int muxChannel[16][4]={
   {0,0,0,0}, //channel 0
@@ -36,11 +71,39 @@ void setup(){
   digitalWrite(s1, LOW);
   digitalWrite(s2, LOW);
   digitalWrite(s3, LOW);
+
+  servos[0].attach(2);  // attaches the servo on pin 9 to the servo object
+  servos[1].attach(3);
+  servos[2].attach(8);
+  servos[3].attach(9);
+  servos[4].attach(10);
+  servos[5].attach(11);
+  servos[6].attach(12);
+  servos[7].attach(13);
   
   Serial.begin(115200);
     
 }
- 
+
+
+void checkForNewData () {
+    if (Serial.available() >= sizeCollisionArray && newData == false) {
+
+      for(int j = 0; j < sizeCollisionArray; j++)
+      {
+        collision[j] = Serial.read();
+        
+        if (collision[j] == 1){
+          servos[j].write(engage);
+        }
+        else{
+          servos[j].write(disengage);
+        }
+        newData = true;
+      }
+    }
+}
+
 void loop(){
  //-------Finger joints----------//
   for(int i = 0; i<4;i++){
@@ -52,25 +115,16 @@ void loop(){
       // MCP z joints
       angles[i+8] = readMux(channel+2);
   }
-  //thumb DIP/MPCx and MPCz
-//  angles[0] = analogRead(2);
-//  angles[5] = analogRead(4);
-//  angles[10] = analogRead(5);
   
-  //thumb CMC x and y
-//  angles[15] = analogRead(6);
-//  angles[16] = analogRead(7);
-  
-  //wrist
-//  angles[17] = analogRead(0);
-//  angles[18] = analogRead(1);
-  
-  // -Printing on the serial monitor for Python to receive the data-//
+// -Printing on the serial monitor for Python to receive the data-//
  for(int i = 0; i < sizeAngle-1; i++)
  {
    Serial.print(angles[i]);Serial.print(" ");
  }
  Serial.println(angles[sizeAngle-1]);
+ if (newData == true) {
+  newData = false;
+ }
 
 // //Checking PIPs
 //   Serial.print(angles[0]); Serial.print(" ");
@@ -92,7 +146,10 @@ void loop(){
 //   Serial.print(angles[10]); Serial.print(" ");
 //   Serial.println(angles[11]);
 //   delay(1000);
- }
+
+// Wait to receive collision array from python via serial
+  checkForNewData();
+}
 
 //functions
 int readMux(int channel){
