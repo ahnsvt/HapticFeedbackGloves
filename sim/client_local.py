@@ -7,15 +7,16 @@ PORT = 65430  # The port used by the server
 
 tic = time.time()
 angles = np.zeros(20)
-angles[2] = np.deg2rad(90)
-while time.time() - tic < 1.:
+angles[10] = np.deg2rad(90)
+while time.time() - tic < 300.:
     if (time.time() - tic) % 0.5 == 0:
 
         position = np.array([0,0,0.35])
         orientation = np.array([ 0.7071068, 0, 0, 0.7071068 ])
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((HOST, PORT))
-            angles = np.roll(angles, 1)
+            # angles = np.roll(angles, 1)
+            # print(np.where(angles == np.deg2rad(90)))
             data = dict()
             data["angles"] = angles.tolist()
             data["position"] = position.tolist()
