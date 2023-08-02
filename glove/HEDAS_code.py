@@ -454,8 +454,8 @@ def read_function():
                         #     angles[i] = int(angles[i]*1000)
                         s.sendall(data)
                         payload = s.recv(4096)
-                        payload = payload.decode("utf-8").rstrip("\x00")
-                        print("Received {} from server".format(payload))
+                        contact_info = payload.decode("utf-8").rstrip("\x00")
+                        print("Received contact info {} from server".format(contact_info))
                 
 def show_image():
     global show_cam,val,cap
