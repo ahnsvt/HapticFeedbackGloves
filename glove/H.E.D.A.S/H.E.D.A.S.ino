@@ -5,7 +5,7 @@ int s2 = 6;
 int s3 = 7;
 int SIG_pin = A3;
 
-const int sizeAngle = 19;
+const int sizeAngle = 12;
 int angles[sizeAngle];
 
 int muxChannel[16][4]={
@@ -46,43 +46,52 @@ void loop(){
   for(int i = 0; i<4;i++){
       int channel = i*3+2;
       // PIP joints
-      angles[i+1] = readMux(channel);
+      angles[i] = readMux(channel);
       // MCP x joints
-      angles[i+6] = readMux(channel+1);
+      angles[i+4] = readMux(channel+1);
       // MCP z joints
-      angles[i+11] = readMux(channel+2);
+      angles[i+8] = readMux(channel+2);
   }
-  //thumb PIP/MPCx and MPCz
-  angles[0] = analogRead(2);
-  angles[5] = analogRead(4);
-  angles[10] = analogRead(5);
+  //thumb DIP/MPCx and MPCz
+//  angles[0] = analogRead(2);
+//  angles[5] = analogRead(4);
+//  angles[10] = analogRead(5);
   
   //thumb CMC x and y
-  angles[15] = analogRead(6);
-  angles[16] = analogRead(7);
+//  angles[15] = analogRead(6);
+//  angles[16] = analogRead(7);
   
   //wrist
-  angles[17] = analogRead(0);
-  angles[18] = analogRead(1);
+//  angles[17] = analogRead(0);
+//  angles[18] = analogRead(1);
   
-  //-Printing on the serial monitor for Python to receive the data-//
-  // for(int i = 0; i < sizeAngle-1; i++)
-  // {
-  //   Serial.print(angles[i]);Serial.print(" ");
-  // }
-  // Serial.println(angles[sizeAngle-1]);
-  for(int i = 0; i < 3; i++)
-  {
-    //Serial.print(angles[i+1]);Serial.print(" "); //for the PIPs
-    //Serial.print(angles[i+6]);Serial.print(" "); //for the MCPxs
-    Serial.print(angles[i+11]);Serial.print(" "); //for the MCPzs
-  }
+  // -Printing on the serial monitor for Python to receive the data-//
+ for(int i = 0; i < sizeAngle-1; i++)
+ {
+   Serial.print(angles[i]);Serial.print(" ");
+ }
+ Serial.println(angles[sizeAngle-1]);
 
-  //Serial.println(angles[4]); //PIP
-  //Serial.println(angles[9]); //PIP
-  Serial.println(angles[14]); //PIP
+// //Checking PIPs
+//   Serial.print(angles[0]); Serial.print(" ");
+//   Serial.print(angles[1]); Serial.print(" ");
+//   Serial.print(angles[2]); Serial.print(" ");
+//   Serial.print(angles[3]); Serial.print(" ");
+// //  Serial.println(angles[3]);
 
-  delay(1000);
+// // Checking MPCx
+//   Serial.print(angles[4]); Serial.print(" ");
+//   Serial.print(angles[5]); Serial.print(" ");
+//   Serial.print(angles[6]); Serial.print(" ");
+//   Serial.print(angles[7]); Serial.print(" ");
+// //  Serial.println(angles[7]);
+
+// //Checking MCPz
+//   Serial.print(angles[8]); Serial.print(" ");
+//   Serial.print(angles[9]); Serial.print(" ");
+//   Serial.print(angles[10]); Serial.print(" ");
+//   Serial.println(angles[11]);
+//   delay(1000);
  }
 
 //functions

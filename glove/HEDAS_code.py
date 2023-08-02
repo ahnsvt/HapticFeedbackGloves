@@ -456,6 +456,7 @@ def read_function():
                         payload = s.recv(4096)
                         contact_info = payload.decode("utf-8").rstrip("\x00")
                         print("Received contact info {} from server".format(contact_info))
+                        arduino.write(contact_info )
                 
 def show_image():
     global show_cam,val,cap
@@ -525,9 +526,9 @@ def eraseWidget():
 def poly_reg(coeff,val):
     return coeff[0] * pow(val,2) + coeff[1]*val + coeff[2]
 
-# function that maps the potentiometer value to an angle (the pot goes from 15° to 345°)
+# function that maps the potentiometer value to an angle (the pot goes from 15° to 345°, ADC val = 0  to 1023)
 def potToAngle(val):
-    return val * 330 / (1023 + 15)
+    return val * 330 / 1023 + 15
 
 # Main where the Threads are started
 if __name__ == "__main__":
