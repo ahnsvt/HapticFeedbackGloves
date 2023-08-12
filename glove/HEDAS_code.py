@@ -301,7 +301,7 @@ def read_function():
 
                 for i in range (0,4): 
                     # DIP
-                    angles[i+12] = angles[i]*0.88 #Might need to change this eqn based on which DIP-PIP relationship I go with
+                    angles[i+12] = angles[i]*0.66 #Might need to change this eqn based on which DIP-PIP relationship I go with
                 mano_angles = np.zeros(16)
                 for i in range (0,4):
                     for j in range (0,4):
@@ -340,7 +340,7 @@ def read_function():
                     PORT = 65430  # The port used by the server
                     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                         s.connect((HOST, PORT))
-                        position = np.array([0,0,0.1])
+                        position = np.array([0,0,0.35])
                         orientation = np.array([ 0.7071068, 0, 0, 0.7071068 ])
                         data = dict()
                         data["angles"] = mano_angles_sock.tolist()

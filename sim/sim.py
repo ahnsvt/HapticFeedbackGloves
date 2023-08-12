@@ -78,21 +78,8 @@ def main():
     urdfRootPath = pybullet_data.getDataPath()
 
     client.loadURDF(os.path.join(urdfRootPath, "table/table.urdf"), basePosition=[0.5, 0, -0.65], useFixedBase=1)
-    obj = YCBObject("036_wood_block")
-    obj.load(position=[0.,0.,0.01])
-    # client.resetBasePositionAndOrientation(obj1.body_id, [0.5,-0.1,0.01], [0.707, 0, 0, 0.707])
 
-    obj = YCBObject("006_mustard_bottle")
-    obj.load(position=[[0.25,0,0.01]])
-    # client.resetBasePositionAndOrientation(obj2.body_id, [0.5,0,0.01], [0.707, 0, 0, 0.707])
-
-    obj = YCBObject("025_mug")
-    obj.load(position=[0,0,0.01])
-    # client.resetBasePositionAndOrientation(obj3.body_id, [0,0,0.01], [0.707, 0, 0, 0.707])
-    # client.loadURDF(os.path.join(urdfRootPath, "plane.urdf"), basePosition=[0., 0, 0.01], baseOrientation=[ 0, 0, 1, 0 ], useFixedBase=1, globalScaling=0.1)
-
-    obj = YCBObject("024_bowl")
-    obj.load(position=[0.1,0.2,0.01])
+    obj_id = client.loadURDF("cylinder.urdf", basePosition=[-0.02, 0.02, 0.33], baseOrientation=[0.707, 0, 0, 0.707], useFixedBase=1, globalScaling=1.0)
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -103,6 +90,9 @@ def main():
 
     client.setRealTimeSimulation(True)
 
+    tic = None
+    toc = None
+    times = []
     while client.isConnected():
 
         curr_pos, curr_orien, _, curr_angles, _, _ = hand.get_state()
@@ -113,11 +103,14 @@ def main():
         # Get the list sockets which are readable
         read_sockets, write_sockets, error_sockets = select.select(
             socket_list, [], [], 0)
-        
         for sock in read_sockets:
             print("Incoming msg")
             #incoming message from remote server
             if sock is s:
+                if tic is not None:
+                    toc = time.time()-tic
+                    times.append(toc)
+                print('Cycle time ', np.mean(times))
                 conn, add = s.accept()
                 payload = conn.recv(4096)
                 if not payload:
@@ -139,6 +132,7 @@ def main():
                         data[pt[3]] = 1
                     data = json.dumps(data.tolist(), ensure_ascii=False).encode('utf8')
                     conn.sendall(data)
+                    tic = time.time()
         # # keep current position unless payload received
         # print(angles)            
         hand.set_target(position, orientation, angles)

@@ -3,14 +3,14 @@
 Servo servos[8]; // create servo object array to control 8 servos
 /*
 Servo indexing is as follows:
-0 = Index_Intermediate; 
-1 = Index_Proximal;
-2 = Middle_Intermediate;
-3 = Middle_Proximal;
-4 = Ring_Intermediate;
-5 = Ring_Proximal;
-6 = Pinkie_Intermediate;
-7 = Pinkie_Proximal;
+0 = Index_Proximal; 
+1 = Index_Intermediate;
+2 = Middle_Proximal;
+3 = Middle_Intermediate;
+4 = Pinkie_Proximal;
+5 = Pinkie_Intermediate;
+6 = Ring_Proximal;
+7 = Ring_Intermediate;
 */
 
 //Mux variables
@@ -40,7 +40,7 @@ float angles[sizeAngle];
 int collision[sizeCollisionArray];
 
 //Servo positions to engage/disengage pawls
-int disengage = 90;
+int disengage = 30;
 int engage = 180;
 
 int muxChannel[16][4]={
@@ -72,14 +72,23 @@ void setup(){
   digitalWrite(s2, LOW);
   digitalWrite(s3, LOW);
 
-  servos[0].attach(2);  // attaches the servo on pin 9 to the servo object
-  servos[1].attach(3);
-  servos[2].attach(8);
-  servos[3].attach(9);
-  servos[4].attach(10);
-  servos[5].attach(11);
-  servos[6].attach(12);
-  servos[7].attach(13);
+  servos[0].attach(3);  // attaches the servo on pin 9 to the servo object
+  servos[1].attach(2);
+  servos[2].attach(9);
+  servos[3].attach(8);
+  servos[4].attach(13);
+  servos[5].attach(12);
+  servos[6].attach(11);
+  servos[7].attach(10);
+
+  servos[0].write(disengage);
+  servos[1].write(disengage);
+  servos[2].write(disengage);
+  servos[3].write(disengage);
+  servos[4].write(disengage);
+  servos[5].write(disengage);
+  servos[6].write(disengage);
+  servos[7].write(disengage);
   
   Serial.begin(115200);
     
